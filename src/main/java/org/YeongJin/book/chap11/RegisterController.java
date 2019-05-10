@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+
 @Controller
 public class RegisterController {
 
@@ -32,7 +33,9 @@ public class RegisterController {
 		return "register/step1";
 	}
 
-
+	/**
+	 * p.276 [리스트 11.8] handleStep2()
+	 */
 	@PostMapping("/register/step2")
 	public String handleStep2(
 			@RequestParam(value = "agree", defaultValue = "false") Boolean agree) {
@@ -40,9 +43,11 @@ public class RegisterController {
 			logger.debug("약관에 동의하지 않았습니다.");
 			return "register/step1";
 		}
+		
 		return "register/step2";
 	}
 
+	
 	@PostMapping("/register/step3")
 	public String handleStep3(Member member) {
 		try {
@@ -60,8 +65,9 @@ public class RegisterController {
 			@RequestParam(value = "page", defaultValue = "1") int page,
 			Model model) {
 
+		
 		final int COUNT = 100;
-	
+		
 		int offset = (page - 1) * COUNT;
 
 		List<Member> memberList = memberDao.selectAll(offset, COUNT);
