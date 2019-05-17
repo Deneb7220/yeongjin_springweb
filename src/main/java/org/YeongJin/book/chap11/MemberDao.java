@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface MemberDao {
 
-	Member selectByEmail(String email);
+	Member selectByLogin(String email, String password);
 
 	void insert(Member member);
 
