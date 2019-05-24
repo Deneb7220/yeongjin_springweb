@@ -4,7 +4,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.YeongJin.article.Article;
+import org.YeongJin.book.chap11.Member;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +19,8 @@ public class ArticleController {
 
 	@Autowired
 	ArticleDao articleDao;
+	
+	Logger logger = LogManager.getLogger();
 
 	
 	@GetMapping("/article/list")
@@ -45,14 +49,21 @@ public class ArticleController {
 	
 	@GetMapping("/article/addForm")
 	public String articleAddForm(HttpSession session) {
+		Object memberObj = session.getAttribute("MEMBER");
+		if (memberObj == null)
+			return "login/loginForm";
 		return "article/addForm";
 	}
 
 	
 	@PostMapping("/article/add")
 	public String articleAdd(Article article, HttpSession session) {
-		article.setUserId("2014041089");
-		article.setName("박영진");
+		Object memberObj = session.getAttribute("MEMBER");
+		if (memberObj == null)
+			return "login/loginForm";
+		Member member = (Member) memberObj;
+		article.setUserId(member.getMemberId());
+		article.setName(member.getName());
 		articleDao.addArticle(article);
 		return "redirect:/app/article/list";
 	}

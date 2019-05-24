@@ -20,34 +20,29 @@ public class RegisterController {
 	@Autowired
 	MemberDao memberDao;
 
-	static final Logger logger = LogManager.getLogger();
+	Logger logger = LogManager.getLogger();
 
 	@RequestMapping("/main")
 	public String main() {
 		return "main";
 	}
 
-
 	@RequestMapping("/register/step1")
 	public String handleStep1() {
 		return "register/step1";
 	}
 
-	/**
-	 * p.276 [리스트 11.8] handleStep2()
-	 */
 	@PostMapping("/register/step2")
 	public String handleStep2(
 			@RequestParam(value = "agree", defaultValue = "false") Boolean agree) {
-		if (!agree) {
+		if (!agree) {// 동의하지 않으면 step1으로 돌아감
 			logger.debug("약관에 동의하지 않았습니다.");
 			return "register/step1";
 		}
-		
+		// 동의하면 step2로 forward
 		return "register/step2";
 	}
 
-	
 	@PostMapping("/register/step3")
 	public String handleStep3(Member member) {
 		try {
@@ -65,9 +60,9 @@ public class RegisterController {
 			@RequestParam(value = "page", defaultValue = "1") int page,
 			Model model) {
 
-		
+		// 페이지 당 가져오는 행의 수
 		final int COUNT = 100;
-		
+		// 시작점
 		int offset = (page - 1) * COUNT;
 
 		List<Member> memberList = memberDao.selectAll(offset, COUNT);
