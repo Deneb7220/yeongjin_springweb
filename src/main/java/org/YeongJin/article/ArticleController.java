@@ -43,6 +43,7 @@ public class ArticleController {
 			Model model) {
 		Article article = articleDao.getArticle(articleId);
 		model.addAttribute("article", article);
+		
 	}
 
 	/*
@@ -81,4 +82,22 @@ public class ArticleController {
 		articleDao.addArticle(article);
 		return "redirect:/app/article/list";
 	}
+	
+	@PostMapping("/article/delete")
+	public String articleDel(String articleId, @SessionAttribute("MEMBER") Member member) {
+		if(!articleId.equals(member.getMemberId()))
+		return "redirect:/app/article/view";
+		else articleDao.deleteArticle(articleId);
+		return "redirect:/app/article/delete";
+	}
+	
+	@PostMapping("/article/update")
+	public String articleUpdate(Article article, @SessionAttribute("MEMBER") Member member) {
+		if(!article.getUserId().equals(member.getMemberId()))
+			return "redirect:/app/article/view";
+		else articleDao.updateArticle(article);
+			return "redirect:/app/article/update";
+	}
+	
 }
+

@@ -21,5 +21,11 @@
 	<hr />
 	<p>${article.contentHtml }</p>
 	<hr />
+	<p>
+		<a href="./app/article/update">글 수정</a>
+	</p>
+	<p>
+		<a href="./app/article/delete">글 삭제</a>
+	</p>
 </body>
 </html>
