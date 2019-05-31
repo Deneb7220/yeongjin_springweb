@@ -1,6 +1,7 @@
 package org.YeongJin.article;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,44 +19,60 @@ public class ArticleDao {
 
 	static final String ADD_ARTICLE = "insert article(title,content,userId,name) values(?,?,?,?)";
 
-	static final String DELETE_ARTICLE = "DELETE FROM article WHERE articleId=?";
-	
-	static final String UPDATE_ARTICLE = "UPDATE article SET title=?, content=? WHERE articleId=?";
-	
+	static final String UPDATE_ARTICLE = "update article set title=?, content=? where (articleId, userId) = (?,?)";
+
+	static final String DELETE_ARTICLE = "delete from article where (articleId, userId) = (?,?)";
+
 	@Autowired
 	JdbcTemplate jdbcTemplate;
 
 	RowMapper<Article> articleRowMapper = new BeanPropertyRowMapper<>(
 			Article.class);
 
-	
+	/**
+	 * 글 목록
+	 */
 	public List<Article> listArticles(int offset, int count) {
 		return jdbcTemplate.query(LIST_ARTICLES, articleRowMapper, offset,
 				count);
 	}
 
-
+	/**
+	 * 글 목록 건수
+	 */
 	public int getArticlesCount() {
 		return jdbcTemplate.queryForObject(COUNT_ARTICLES, Integer.class);
 	}
 
-	
+	/**
+	 * 글 조회
+	 */
 	public Article getArticle(String articleId) {
 		return jdbcTemplate.queryForObject(GET_ARTICLE, articleRowMapper,
 				articleId);
 	}
-	
-	public int updateArticle(Article article) {
-		return jdbcTemplate.update(UPDATE_ARTICLE, article.getTitle(),
-				article.getContent(), article.getArticleId());
-	}
 
-	public int deleteArticle(String articleId) {
-		return jdbcTemplate.update(DELETE_ARTICLE, articleId);
-	}
-	
+	/**
+	 * 글 등록
+	 */
 	public int addArticle(Article article) {
 		return jdbcTemplate.update(ADD_ARTICLE, article.getTitle(),
 				article.getContent(), article.getUserId(), article.getName());
+	}
+
+	/**
+	 * 글 수정
+	 */
+	public int updateArticle(Article article) {
+		return jdbcTemplate.update(UPDATE_ARTICLE, article.getTitle(),
+				article.getContent(), article.getArticleId(),
+				article.getUserId());
+	}
+
+	/**
+	 * 글 삭제
+	 */
+	public int deleteArticle(String articleId, String userId) {
+		return jdbcTemplate.update(DELETE_ARTICLE, articleId, userId);
 	}
 }
