@@ -3,8 +3,6 @@ package org.YeongJin.letter;
 import java.util.List;
 
 import org.YeongJin.book.chap11.Member;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,38 +13,52 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 
 @Controller
 public class LetterController {
-	
+
 	@Autowired
 	LetterDao letterDao;
-	
-	static final Logger logger = LogManager.getLogger();
 
+	@GetMapping("/letter/listReceived")
+	public void listReceived(
+			@RequestParam(value = "page", defaultValue = "1") int page,
+			@SessionAttribute("MEMBER") Member member, Model model) {
 
-	@GetMapping("/letter/listOfReceiver")
-	public void listOfReceiver(@SessionAttribute("MEMBER") Member member,
-			Model model) {
-		List<Letter> letters = letterDao
-				.listLettersOfReceiver(member.getMemberId());
+		// 페이지당 행의 수와 페이지의 시작점
+		final int ROWS_PER_PAGE = 20;
+		int offset = (page - 1) * ROWS_PER_PAGE;
+
+		List<Letter> letters = letterDao.listLettersReceived(
+				member.getMemberId(), offset, ROWS_PER_PAGE);
+		int count = letterDao.countLettersReceived(member.getMemberId());
+
 		model.addAttribute("letters", letters);
+		model.addAttribute("count", count);
 	}
 
+	@GetMapping("/letter/listSent")
+	public void listSent(
+			@RequestParam(value = "page", defaultValue = "1") int page,
+			@SessionAttribute("MEMBER") Member member, Model model) {
 
-	@GetMapping("/letter/listOfSender")
-	public void listOfSender(@SessionAttribute("MEMBER") Member member,
-			Model model) {
-		List<Letter> letters = letterDao
-				.listLettersOfSender(member.getMemberId());
+		// 페이지당 행의 수와 페이지의 시작점
+		final int ROWS_PER_PAGE = 20;
+		int offset = (page - 1) * ROWS_PER_PAGE;
+
+		List<Letter> letters = letterDao.listLettersSent(member.getMemberId(),
+				offset, ROWS_PER_PAGE);
+		int count = letterDao.countLettersSent(member.getMemberId());
+
 		model.addAttribute("letters", letters);
+		model.addAttribute("count", count);
 	}
-
 
 	@GetMapping("/letter/view")
 	public void view(@RequestParam("letterId") String letterId,
 			@SessionAttribute("MEMBER") Member member, Model model) {
+
+		// 자신의 편지가 아닐 경우 EmptyResultDataAccessException 발생함
 		Letter letter = letterDao.getLetter(letterId, member.getMemberId());
 		model.addAttribute("letter", letter);
 	}
-
 
 	@PostMapping("/letter/add")
 	public String add(Letter letter,
@@ -54,19 +66,23 @@ public class LetterController {
 		letter.setSenderId(member.getMemberId());
 		letter.setSenderName(member.getName());
 		letterDao.addLetter(letter);
-		return "redirect:/app/letter/listOfSender";
+		return "redirect:/app/letter/listSent";
 	}
 
-
 	@GetMapping("/letter/delete")
-	public String delete(@RequestParam("letterId") String letterId,
+	public String delete(
+			@RequestParam(value = "mode", required = false) String mode,
+			@RequestParam("letterId") String letterId,
 			@SessionAttribute("MEMBER") Member member) {
 		int updatedRows = letterDao.deleteLetter(letterId,
 				member.getMemberId());
 		if (updatedRows == 0)
+			// 자신의 편지가 아닐 경우 삭제되지 않음
 			throw new RuntimeException("No Authority!");
 
-		return "redirect:/보낸목록 또는 받은목록";
-    }
-	
+		if ("SENT".equals(mode))
+			return "redirect:/app/letter/listSent";
+		else
+			return "redirect:/app/letter/listReceived";
+	}
 }
