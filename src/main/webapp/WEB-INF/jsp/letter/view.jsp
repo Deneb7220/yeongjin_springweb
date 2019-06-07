@@ -3,10 +3,10 @@
 <html>
 <head>
 <base href="${pageContext.request.contextPath }/" />
-<title>letter</title>
+<title>게시판</title>
 <script type="text/javascript">
 	function confirmDelete() {
-		if (confirm("Do you want to delete this letter ?"))
+		if (confirm("삭제하시겠습니까?"))
 			return true;
 		else
 			return false;
@@ -15,27 +15,30 @@
 </head>
 <body>
 	<%@ include file="/WEB-INF/jsp/header.jsp"%>
-	<h2>view letter</h2>
+	<h2>편지 보기</h2>
 	<p>
-			<a href="./app/letter/delete?letterId=${letter.letterId}&mode=${param.mode}"onclick="return confirmDelete();">delete letter</a>
+		<c:choose>
+			<c:when test="${param.mode == 'SENT' }">
+				<a href="./app/letter/listSent">목록</a>
+			</c:when>
+			<c:otherwise>
+				<a href="./app/letter/listReceived">목록</a>
+			</c:otherwise>
+		</c:choose>
+		<a href="./app/letter/delete?letterId=${letter.letterId }&mode=${param.mode}"
+			onclick="return confirmDelete();">삭제</a>
 	</p>
-	<hr/>
+	<hr />
 	<p>
-		<span style="font-weight: bold;">letter title : ${letter.title } </span>
+		<span style="font-weight: bold;">${letter.title }</span>
 	</p>
-	<hr/>
 	<p>
-        	 <span>sender : ${letter.senderName }(${letter.senderId })</span> || <span>receiver : ${letter.receiverName }(${letter.receiverId })</span>
-	<hr/>
-	<p>
-		<span>content : ${letter.content }</span>
+		보낸이 : <span>${letter.senderId }</span>:<span>${letter.senderName }</span><br />
+		받는이 : <span>${letter.receiverId }</span>:<span>${letter.receiverName }</span><br />
+		보낸시간 : <span>${letter.cdate }</span>
 	</p>
-	<hr/>
-	<p>
-		<span>date : ${letter.cdate }</span>
-		</p>
-		<p>
-		<span>letter number : ${letter.letterId }</span>
-	</p>
+	<hr />
+	<p>${letter.contentHtml }</p>
+	<hr />
 </body>
 </html>
